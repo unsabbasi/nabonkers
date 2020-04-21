@@ -44,12 +44,12 @@ def load_sound(name):
 
 
 class Nabunga(pg.sprite.Sprite):
-    # quarter up - full up
+    # quarter up -> full up
     frames = []
 
     bonkedFrame = None
 
-    state = None    # 'up', 'standing', 'down', None
+    state = None    # used for animation and collision
     currentFrame = -1 # 0 - 4 (-1 when not drawn)
 
     def __init__(self, posRect):
@@ -67,10 +67,12 @@ class Nabunga(pg.sprite.Sprite):
             if self.currentFrame != 3:
                 self.currentFrame += 1
                 self.image = self.frames[self.currentFrame]
+                self.rect = self.image.get_rect()
         elif self.state == DOWN:
             if self.currentFrame != 0:
                 self.currentFrame -= 1
                 self.image = self.frames[self.currentFrame]
+                self.rect = self.image.get_rect()
             else:
                 self.kill()     # IMPORTANT; pisses off after going down (and at last frame)
 
@@ -159,7 +161,7 @@ def main():
         dirty = all.draw(screen)
         pg.display.update(dirty)
         clock.tick(40)
-
+    pg.quit()
 
 if __name__ == "__main__":
     main()
