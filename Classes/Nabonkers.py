@@ -1,5 +1,5 @@
 import os
-import random
+from random import randint
 import pygame as pg
 from pygame.compat import geterror
 
@@ -43,53 +43,95 @@ def load_sound(name):
     return sound
 
 
-class Nabunga(pg.sprite.Sprite):
-    # quarter up -> full up
+class Nabunga(pg.sprite.DirtySprite):
+    # quarter up - full up
     frames = []
-
     bonkedFrame = None
-
-    state = None    # used for animation and collision
-    currentFrame = -1 # 0 - 4 (-1 when not drawn)
-
-    def __init__(self, posRect):
-        pg.sprite.Sprite.__init__(self, self.containers)
-        self.image = None
+    state = UP
+    currentFrame = 0    # 0 - 3
+    original = None
+    time = None
+    layer = 0
+    ANIMTIME = 12
+    animtimer = ANIMTIME
+    def __init__(self, posRect, time, index, name):
+        pg.sprite.DirtySprite.__init__(self, self.containers)
+        self.image = self.frames[index]
         self.rect = posRect
+        self.original = posRect
+        self.time = time
+        self.name = name
 
     def update(self):
-        if self.currentFrame == 3:
-            self.state = STEADY
+        self.dirty = 1
+        if self.state == STEADY:
+            if self.time == 0:
+                self.state = DOWN
+            else:
+                self.time -= 1
+
         if self.state == BONKED:
             self.image = self.bonkedFrame
+            self.rect = self.get_frame_rect(3)
+            if self.animtimer != 0:
+                self.animtimer -= 1
+                return
+            else:
+                self.animtimer = self.ANIMTIME
             self.state = DOWN
+
         elif self.state == UP:
             if self.currentFrame != 3:
                 self.currentFrame += 1
                 self.image = self.frames[self.currentFrame]
-                self.rect = self.image.get_rect()
+                self.rect = self.get_frame_rect(self.currentFrame)
+            else:
+                self.state = STEADY
+                self.rect = self.get_frame_rect(3)
+
         elif self.state == DOWN:
             if self.currentFrame != 0:
                 self.currentFrame -= 1
                 self.image = self.frames[self.currentFrame]
-                self.rect = self.image.get_rect()
-            else:
+                self.rect = self.get_frame_rect(self.currentFrame)
+            elif self.currentFrame == 0:
                 self.kill()     # IMPORTANT; pisses off after going down (and at last frame)
+
+    def get_frame_rect(self, frame):
+        left, top = self.original.topleft
+        width, height = self.original.size
+        if frame == 1:
+            left -= 28
+            top -= 42
+            width, height = 86, 74
+        if frame == 2:
+            left -= 35
+            top -= 79
+            width, height = 96, 111
+        if frame == 3:
+            left -= 36
+            top -= 111
+            width, height = 96, 148
+        return pg.Rect(left, top, width, height)
+
+    def bonk(self):
+        self.state = BONKED
 
     def getState(self):
         return self.state
 
 
-class Bonker(pg.sprite.Sprite):
+class Bonker(pg.sprite.DirtySprite):
 
     frames = []
     bonkState = False
-
+    layer = 1
     def __init__(self):
-        pg.sprite.Sprite.__init__(self, self.containers)
+        pg.sprite.DirtySprite.__init__(self)
         self.image, self.rect = self.frames[0], self.frames[0].get_rect()
 
     def update(self):
+        self.dirty = 1
         self.rect.midtop = pg.mouse.get_pos()
         if self.bonkState:
             self.image = self.frames[1]
@@ -99,24 +141,19 @@ class Bonker(pg.sprite.Sprite):
             self.bonkState = False
             self.image = self.frames[0]
 
-    def bonk(self, target):
-        if not self.bonkState:
-            self.bonkState = True
-            hitbox = self.rect.inflate(-5, -5)
-            return hitbox.colliderect(target.rect)
+    def bonk(self, nabunga):
+        self.bonkState = True
 
 
 def main():
     pg.init()
 
-    all = pg.sprite.RenderUpdates()
-    Bonker.containers = all
     clock = pg.time.Clock()
-
-
+    # Don't know what this does but don't touch it
     if pg.get_sdl_version()[0] == 2:
         pg.mixer.pre_init(44100, 32, 2, 1024)
     pg.init()
+    # This might be broken
     if pg.mixer and not pg.mixer.get_init():
         print("Warning, no sound")
         pg.mixer = None
@@ -125,7 +162,7 @@ def main():
     winstyle = 0  # |FULLSCREEN
     bestdepth = pg.display.mode_ok(SCREENRECT.size, winstyle, 32)
     screen = pg.display.set_mode(SCREENRECT.size, winstyle, bestdepth)
-    pg.display.set_caption("Nabonkers")
+    pg.display.set_caption("Nabonkers!")
     icon = load_image('icon.png')
     icon = pg.transform.scale(icon, (32, 32))
     pg.display.set_icon(icon)
@@ -144,24 +181,75 @@ def main():
     screen.blit(background, (0, 0))
     pg.display.flip()
     # ------------------------------------------------------------------------------------------------------------------
+    # Define pop-up coordinates; dimensions for nabunga0.png
+    holes = []
+
+    # left top width height
+    topBottom = 650
+    topTop= 455
+    l= 66
+    w, h = 32, 37    # of nabunga0
+    # bottom row
+    for i in range(0, 9, 2):
+        left = i*100 + l
+        rect = pg.Rect(left, topBottom, w, h)
+        holes.append(rect)
+    # top row
+    for i in range(1, 8, 2):
+        left = i*100 + l
+        rect = pg.Rect(left, topTop, w, h)
+        holes.append(rect)
+
+    # len(holes) = 9
+
+    # ------------------------------------------------------------------------------------------------------------------
+    nabungas = pg.sprite.Group()
+    last_nabunga = pg.sprite.GroupSingle()
+    all = pg.sprite.LayeredDirty()
+    Nabunga.containers = nabungas
     bonker = Bonker()
+    all.add(bonker, layer=bonker.layer)
+
     going = True
+    time = 100
+    timer2 = time
     while going:
         all.clear(screen, background)
         all.update()
+        # Create nabungas
+
+        for hole in holes:
+            chance = randint(1, 4)
+            if chance == 1:
+                if timer2 != 0:
+                    timer2 -= 1
+                else:
+                    if last_nabunga:
+                        last_nabunga.sprite.state = DOWN
+                    n = Nabunga(hole, 40, 0, holes.index(hole))
+                    all.add(n, layer=Nabunga.layer)
+                    timer2 = time
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 going = False
             elif event.type == pg.MOUSEBUTTONDOWN:
                 bonker.bonkState = True
+                for nabunga in nabungas:
+                    # print(nabunga.name)
+                    bonker.bonk(nabunga)
+                    hitbox = bonker.rect.inflate(1, 1)
+                    if hitbox.colliderect(nabunga.rect):
+                        nabunga.bonk()
             elif event.type == pg.MOUSEBUTTONUP:
                 bonker.resetBonkState()
 
         dirty = all.draw(screen)
         pg.display.update(dirty)
         clock.tick(40)
+
     pg.quit()
+    # TODO: Add background animation (simple water movement)
 
 if __name__ == "__main__":
     main()
