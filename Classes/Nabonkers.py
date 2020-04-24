@@ -1,4 +1,8 @@
 import os
+from Classes.Nabunga import Nabunga
+from Classes.Bonker import Bonker
+from Classes.Water import Water
+from Classes.Clouds import Clouds
 from random import randint
 import pygame as pg
 from pygame.compat import geterror
@@ -44,108 +48,6 @@ def load_sound(name):
     return sound
 
 
-class Nabunga(pg.sprite.DirtySprite):
-    # quarter up - full up
-    frames = []
-    bonkedFrame = None
-    state = UP
-    currentFrame = 0    # 0 - 3
-    original = None
-    time = None
-    layer = 0
-    ANIMTIME = 12
-    animtimer = ANIMTIME
-    def __init__(self, posRect, time, index, name):
-        pg.sprite.DirtySprite.__init__(self, self.containers)
-        self.image = self.frames[index]
-        self.rect = posRect
-        self.original = posRect
-        self.time = time
-        self.name = name
-
-    def update(self):
-        self.dirty = 1
-        if self.state == STEADY:
-            if self.time == 0:
-                self.state = DOWN
-            else:
-                self.time -= 1
-
-        if self.state == BONKED:
-            self.image = self.bonkedFrame
-            self.rect = self.get_frame_rect(3)
-            if self.animtimer != 0:
-                self.animtimer -= 1
-                return
-            else:
-                self.animtimer = self.ANIMTIME
-            self.state = DOWN
-
-        elif self.state == UP:
-            if self.currentFrame != 3:
-                self.currentFrame += 1
-                self.image = self.frames[self.currentFrame]
-                self.rect = self.get_frame_rect(self.currentFrame)
-            else:
-                self.state = STEADY
-                self.rect = self.get_frame_rect(3)
-
-        elif self.state == DOWN:
-            if self.currentFrame != 0:
-                self.currentFrame -= 1
-                self.image = self.frames[self.currentFrame]
-                self.rect = self.get_frame_rect(self.currentFrame)
-            elif self.currentFrame == 0:
-                self.kill()     # IMPORTANT; pisses off after going down (and at last frame)
-
-    def get_frame_rect(self, frame):
-        left, top = self.original.topleft
-        width, height = self.original.size
-        if frame == 1:
-            left -= 28
-            top -= 42
-            width, height = 86, 74
-        if frame == 2:
-            left -= 35
-            top -= 79
-            width, height = 96, 111
-        if frame == 3:
-            left -= 36
-            top -= 111
-            width, height = 96, 148
-        return pg.Rect(left, top, width, height)
-
-    def bonk(self):
-        self.state = BONKED
-
-    def getState(self):
-        return self.state
-
-
-class Bonker(pg.sprite.DirtySprite):
-
-    frames = []
-    bonkState = False
-    layer = 1
-    def __init__(self):
-        pg.sprite.DirtySprite.__init__(self)
-        self.image, self.rect = self.frames[0], self.frames[0].get_rect()
-
-    def update(self):
-        self.dirty = 1
-        self.rect.midtop = pg.mouse.get_pos()
-        if self.bonkState:
-            self.image = self.frames[1]
-
-    def resetBonkState(self):
-        if self.bonkState:
-            self.bonkState = False
-            self.image = self.frames[0]
-
-    def bonk(self, nabunga):
-        self.bonkState = True
-
-
 def main():
     pg.init()
 
@@ -170,6 +72,10 @@ def main():
               load_image('nabunga3.png')]
     bonkedFrame = load_image('nabunga_hit.png')
     bonkerFrames = [load_image('bonker0.png'), load_image('bonker1.png')]
+    waterFrames = [load_image('w0.jpg', False), load_image('w1.jpg', False), load_image('w2.png')]
+    cloudFrame = [load_image('c.jpg', False)]
+    Water.frames = waterFrames
+    Clouds.frames = cloudFrame
     Nabunga.frames = nabungaFrames
     Nabunga.bonkedFrame = bonkedFrame
     Bonker.frames = bonkerFrames
@@ -209,8 +115,15 @@ def main():
     all = pg.sprite.LayeredDirty()
     Nabunga.containers = nabungas
     bonker = Bonker()
+    clouds = Clouds(SCREENRECT)
+    water = Water()
     all.add(bonker, layer=bonker.layer)
+    all.add(clouds, layer=clouds.layer)
+    all.add(water, layer=clouds.layer)
 
+    music = load_sound('music2.wav')
+    music.play()
+    music.set_volume(0.3)
     going = True
     time = 100
     timer2 = time
@@ -254,7 +167,7 @@ def main():
         clock.tick(40)
 
     pg.quit()
-    # TODO: Add background animation (simple water movement)
+    # TODO: Add music selection, score, Maryam Talal WHOOPASS sequence
 
 if __name__ == "__main__":
     main()
