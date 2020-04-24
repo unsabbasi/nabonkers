@@ -1,0 +1,12 @@
+Water:
+
+1000x39
+Left, Top: 0, 368
+
+
+Clouds:
+
+1000x205
+Left, Top: 0, 120
+
+
