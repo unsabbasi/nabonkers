@@ -6,7 +6,8 @@ from pygame.compat import geterror
 
 if not pg.image.get_extended():
     raise SystemExit("Sorry, extended image module required")
-
+if not pg.mixer:
+    print("Warning, sound disabled")
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 data_dir = os.path.join(main_dir, "Resources")
 
@@ -154,10 +155,7 @@ def main():
         pg.mixer.pre_init(44100, 32, 2, 1024)
     pg.init()
     # This might be broken
-    if pg.mixer and not pg.mixer.get_init():
-        print("Warning, no sound")
-        pg.mixer = None
-    pg.mixer = None
+
     # Set the display mode
     winstyle = 0  # |FULLSCREEN
     bestdepth = pg.display.mode_ok(SCREENRECT.size, winstyle, 32)
@@ -180,6 +178,9 @@ def main():
     background.blit(map, (0, 0))
     screen.blit(background, (0, 0))
     pg.display.flip()
+    # ------------------------------------------------------------------------------------------------------------------
+    hitSounds = [load_sound('track2.wav'), load_sound('track3.wav')]
+    missSound = load_sound('track5.wav')
     # ------------------------------------------------------------------------------------------------------------------
     # Define pop-up coordinates; dimensions for nabunga0.png
     holes = []
@@ -241,6 +242,10 @@ def main():
                     hitbox = bonker.rect.inflate(1, 1)
                     if hitbox.colliderect(nabunga.rect):
                         nabunga.bonk()
+                        index = randint(0, (len(hitSounds)-1))
+                        hitSounds[index].play()
+                    else:
+                        missSound.play()
             elif event.type == pg.MOUSEBUTTONUP:
                 bonker.resetBonkState()
 
