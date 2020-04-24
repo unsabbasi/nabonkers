@@ -19,24 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="548cc8de-5ce4-49ed-8b2d-dce9dc505a10" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Classes/Bonker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Classes/Clouds.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Classes/Nabunga.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Classes/Resources/music0.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Classes/Resources/music1.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Classes/Resources/music2.wav" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Classes/Water.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/nabonkers.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/nabonkers.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classes/Nabonkers.py" beforeDir="false" afterPath="$PROJECT_DIR$/Classes/Nabonkers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classes/Resources/c.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/Classes/Resources/c.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classes/Resources/track1.wav" beforeDir="false" afterPath="$PROJECT_DIR$/Classes/Resources/track1.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classes/Resources/track2.wav" beforeDir="false" afterPath="$PROJECT_DIR$/Classes/Resources/track2.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classes/Resources/track3.wav" beforeDir="false" afterPath="$PROJECT_DIR$/Classes/Resources/track3.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Classes/Resources/track5.wav" beforeDir="false" afterPath="$PROJECT_DIR$/Classes/Resources/track5.wav" afterDir="false" />
-    </list>
+    <list default="true" id="548cc8de-5ce4-49ed-8b2d-dce9dc505a10" name="Default Changelist" comment="music" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -107,6 +90,14 @@
       <option name="presentableId" value="Default" />
       <updated>1587444424382</updated>
     </task>
+    <task id="LOCAL-00001" summary="music">
+      <created>1587747081811</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1587747081811</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -119,6 +110,11 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="music" />
+    <option name="LAST_COMMIT_MESSAGE" value="music" />
   </component>
   <component name="WindowStateProjectService">
     <state width="1419" height="97" key="GridCell.Tab.0.bottom" timestamp="1587746984280">
@@ -141,5 +137,9 @@
     </state>
     <state width="1419" height="97" key="GridCell.Tab.0.right/0.23.1440.832@0.23.1440.832" timestamp="1587746984279" />
     <state width="1419" height="97" key="GridCell.Tab.0.right/0.23.1440.833@0.23.1440.833" timestamp="1587745903838" />
+    <state x="320" y="179" key="Vcs.Push.Dialog.v2" timestamp="1587747085697">
+      <screen x="0" y="23" width="1440" height="832" />
+    </state>
+    <state x="320" y="179" key="Vcs.Push.Dialog.v2/0.23.1440.832@0.23.1440.832" timestamp="1587747085697" />
   </component>
 </project>
