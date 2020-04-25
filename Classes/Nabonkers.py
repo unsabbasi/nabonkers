@@ -17,6 +17,7 @@ data_dir = os.path.join(main_dir, "Resources")
 
 UP, STEADY, DOWN, BONKED = 'u', 's', 'd', 'b'
 SCREENRECT = pg.Rect(0, 0, 1000, 700)
+OCCUPIED = []
 
 
 def load_image(file, mode=True):
@@ -80,8 +81,9 @@ def main():
     Nabunga.bonkedFrame = bonkedFrame
     Bonker.frames = bonkerFrames
     map = load_image('map.jpg', False)
+    title = load_image('title.jpg', False)
     background = pg.Surface(screen.get_size()).convert()
-    background.blit(map, (0, 0))
+    background.blit(title, (0, 0))
     screen.blit(background, (0, 0))
     pg.display.flip()
     # ------------------------------------------------------------------------------------------------------------------
@@ -121,49 +123,72 @@ def main():
     all.add(clouds, layer=clouds.layer)
     all.add(water, layer=clouds.layer)
 
-    music = load_sound('music2.wav')
-    music.play()
+    music = load_sound('music1.wav')
+    music.play(-1)
     music.set_volume(0.3)
     going = True
     time = 100
     timer2 = time
+    gameState = False
     while going:
-        all.clear(screen, background)
-        all.update()
-        # Create nabungas
+        escapeState = pg.key.get_pressed()
+        if escapeState[pg.K_ESCAPE]:
+            going = False
+        #all.clear(screen, background)
+        #all.update()
+        if not gameState:
+            keyState = pg.key.get_pressed()
+            if keyState[pg.K_RETURN]:
+                gameState = True
+                print('pressed enter')
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    going = False
+            screen.blit(background, (0, 0))
+            pg.display.update()
+        if gameState:
+            all.clear(screen, background)
+            all.update()
+            background.blit(map, (0, 0))
+            if timer2 != 0:
+                timer2 -= 1
+            else:
+                for hole in holes:
+                    chance = randint(1, 4)
+                    if hole not in OCCUPIED and chance == 1:
+                        if last_nabunga:
+                            last_nabunga.sprite.state = DOWN
+                            #OCC    UPIED.pop(last_nabunga.sprite.hole)
+                        n = Nabunga(hole, 40, 0, holes.index(hole), OCCUPIED)
+                        OCCUPIED.append(hole)
+                        all.add(n, layer=Nabunga.layer)
+                        timer2 = time
 
-        for hole in holes:
-            chance = randint(1, 4)
-            if chance == 1:
-                if timer2 != 0:
-                    timer2 -= 1
-                else:
-                    if last_nabunga:
-                        last_nabunga.sprite.state = DOWN
-                    n = Nabunga(hole, 40, 0, holes.index(hole))
-                    all.add(n, layer=Nabunga.layer)
-                    timer2 = time
-
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                going = False
-            elif event.type == pg.MOUSEBUTTONDOWN:
-                bonker.bonkState = True
-                for nabunga in nabungas:
-                    # print(nabunga.name)
-                    bonker.bonk(nabunga)
-                    hitbox = bonker.rect.inflate(1, 1)
-                    if hitbox.colliderect(nabunga.rect):
-                        nabunga.bonk()
-                        index = randint(0, (len(hitSounds)-1))
+            hitsMade = 0    # "Per Click"
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    going = False
+                elif event.type == pg.MOUSEBUTTONDOWN:
+                    bonker.bonkState = True
+                    for nabunga in nabungas:
+                        # print(nabunga.name)
+                        bonker.bonk(nabunga)
+                        hitbox = bonker.rect.inflate(1, 1)
+                        if hitbox.colliderect(nabunga.rect) and nabunga.getState() in [UP, STEADY]:
+                            nabunga.bonk()
+                            hitsMade += 1
+                    if hitsMade > 0:
+                        index = randint(0, (len(hitSounds) - 1))
                         hitSounds[index].play()
-                    else:
+                    elif hitsMade == 0:
                         missSound.play()
-            elif event.type == pg.MOUSEBUTTONUP:
-                bonker.resetBonkState()
+                elif event.type == pg.MOUSEBUTTONUP:
+                    bonker.resetBonkState()
+                hitsMade = 0
 
-        dirty = all.draw(screen)
-        pg.display.update(dirty)
+            dirty = all.draw(screen)
+            pg.display.update(dirty)
+        pg.event.pump()
         clock.tick(40)
 
     pg.quit()

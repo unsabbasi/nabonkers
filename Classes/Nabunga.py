@@ -14,7 +14,7 @@ class Nabunga(pg.sprite.DirtySprite):
     layer = 2
     ANIMTIME = 12
     animtimer = ANIMTIME
-    def __init__(self, posRect, time, index, name):
+    def __init__(self, posRect, time, index, name, occupied):
         pg.sprite.DirtySprite.__init__(self, self.containers)
         self.image = self.frames[index]
         self.rect = posRect
@@ -22,6 +22,8 @@ class Nabunga(pg.sprite.DirtySprite):
         self.time = time
         self.name = name
         self.layer = 0
+        self.hole = posRect
+        self.occupied = occupied
 
     def update(self):
         self.dirty = 1
@@ -56,6 +58,7 @@ class Nabunga(pg.sprite.DirtySprite):
                 self.image = self.frames[self.currentFrame]
                 self.rect = self.get_frame_rect(self.currentFrame)
             elif self.currentFrame == 0:
+                self.occupied.remove(self.hole)
                 self.kill()     # IMPORTANT; pisses off after going down (and at last frame)
 
     def get_frame_rect(self, frame):
